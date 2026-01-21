@@ -24,7 +24,6 @@ public struct SKDragLoadConfiguration {
 
 }
 
-
 public struct SKDragLoadIndicator: View {
     @Binding var isLoading: Bool
     var loadingView: AnyView

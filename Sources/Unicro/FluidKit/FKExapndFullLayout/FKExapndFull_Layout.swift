@@ -190,7 +190,6 @@ struct FKExpandLayoutExample: View {
                             .padding(.top)
                     },
                     expandedContent: {
-//
                         ScrollView {
                             VStack(spacing: 16) {
                                 ForEach(0..<10) { i in
