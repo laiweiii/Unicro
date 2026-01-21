@@ -2,10 +2,64 @@ import SwiftUI
 
 
 public struct MKDraggableGridConfiguration {
-    public var itemSize: CGFloat = 100
-    public var columns: Int = 3
-    public var spacing: CGFloat = 10
+
+    // Appearance / layout
+    public var itemSize: CGFloat
+    public var columns: Int
+    public var spacing: CGFloat
+
+    // Drag appearance
+    public var isDraggingScale: CGFloat
+    public var isDraggingShadowColor: Color
+    public var isDraggingShadowRadius: CGFloat
+
+    // MARK: - Standard configuration
+    public static let standard = MKDraggableGridConfiguration(
+        itemSize: 100,
+        columns: 3,
+        spacing: 10,
+        isDraggingScale: 1.1,
+        isDraggingShadowColor: Color.black.opacity(0.3),
+        isDraggingShadowRadius: 8
+    )
+
+    // MARK: - Public override initializer
+    public init(
+        itemSize: CGFloat? = nil,
+        columns: Int? = nil,
+        spacing: CGFloat? = nil,
+        isDraggingScale: CGFloat? = nil,
+        isDraggingShadowColor: Color? = nil,
+        isDraggingShadowRadius: CGFloat? = nil
+    ) {
+        let standard = MKDraggableGridConfiguration.standard
+
+        self.itemSize = itemSize ?? standard.itemSize
+        self.columns = columns ?? standard.columns
+        self.spacing = spacing ?? standard.spacing
+        self.isDraggingScale = isDraggingScale ?? standard.isDraggingScale
+        self.isDraggingShadowColor = isDraggingShadowColor ?? standard.isDraggingShadowColor
+        self.isDraggingShadowRadius = isDraggingShadowRadius ?? standard.isDraggingShadowRadius
+    }
+
+    // MARK: - Internal full initializer
+    private init(
+        itemSize: CGFloat,
+        columns: Int,
+        spacing: CGFloat,
+        isDraggingScale: CGFloat,
+        isDraggingShadowColor: Color,
+        isDraggingShadowRadius: CGFloat
+    ) {
+        self.itemSize = itemSize
+        self.columns = columns
+        self.spacing = spacing
+        self.isDraggingScale = isDraggingScale
+        self.isDraggingShadowColor = isDraggingShadowColor
+        self.isDraggingShadowRadius = isDraggingShadowRadius
+    }
 }
+
 
 
 public struct MKDraggableGrid<Content: View>: View {
@@ -14,17 +68,18 @@ public struct MKDraggableGrid<Content: View>: View {
     @State private var dragOffset: CGSize = .zero
     @State private var dragStartPosition: CGPoint = .zero
     @State private var itemPositions: [Int: CGPoint] = [:]
-    var gridItemContent: (Int) -> Content
-        
-    var config = MKDraggableGridConfiguration()
-    
+    public var gridItemContent: (Int) -> Content
+    public let config: MKDraggableGridConfiguration
+
     public init(
-            itemCount: Int,
-            @ViewBuilder gridItemContent: @escaping (Int) -> Content
-        ) {
-            self._items = State(initialValue: Array(0..<max(0, itemCount)))
-            self.gridItemContent = gridItemContent
-        }
+        itemCount: Int,
+        config: MKDraggableGridConfiguration = .standard,
+        @ViewBuilder gridItemContent: @escaping (Int) -> Content
+    ) {
+        self._items = State(initialValue: Array(0..<max(0, itemCount)))
+        self.config = config
+        self.gridItemContent = gridItemContent
+    }
     
     public var body: some View {
         GeometryReader { geometry in
@@ -35,8 +90,8 @@ public struct MKDraggableGrid<Content: View>: View {
                     
                     gridItemContent(item)
                     .frame(width: config.itemSize, height: config.itemSize, alignment: .center)
-                    .scaleEffect(isDragging ? 1.1 : 1.0)
-                    .shadow(color: isDragging ? .black.opacity(0.3) : .clear, radius: 8)
+                    .scaleEffect(isDragging ? config.isDraggingScale : 1.0)
+                    .shadow(color: isDragging ? config.isDraggingShadowColor : .clear, radius: config.isDraggingShadowRadius)
                     .position(getItemPosition(for: item, in: geometry))
                     .zIndex(isDragging ? 1000 : Double(currentIndex))
                     .animation(
@@ -174,6 +229,7 @@ public struct MKDraggableGrid<Content: View>: View {
         }
     }
 }
+
 struct SimpleView: View {
     @State private var userSelectedColors: [Color] = [.red, .green, .blue, .orange, .purple,.black,.green, .blue, .orange]
     var body: some View {
