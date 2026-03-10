@@ -46,8 +46,7 @@ public struct SKDragLoadContainer<Content: View>: View {
     private let content: Content
     private let onRefresh: () -> Void
     
-    var loadingView: AnyView = SKDragLoadConfiguration.standard.indicator
-    
+    private let loadingView: AnyView
   
     public init(
         config: SKDragLoadConfiguration = .standard,
@@ -59,6 +58,7 @@ public struct SKDragLoadContainer<Content: View>: View {
         self._isLoading = isLoading
         self.onRefresh = onRefresh
         self.content = content()
+        self.loadingView = config.indicator
     }
     
     public var body: some View {
@@ -142,3 +142,4 @@ struct DragLoadingExample: View {
 #Preview {
     DragLoadingExample()
 }
+

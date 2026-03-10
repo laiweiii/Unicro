@@ -5,7 +5,6 @@
 //  Created by Lai Wei on 2025-04-03.
 //
 import SwiftUI
-import Unicro
 
 
 /// Example view demonstrating the usage of the components
@@ -99,7 +98,8 @@ public struct FKTopBottomSheetLayout<SheetContent: View, TopBarContent: View>: V
     }
 }
 
-public struct FKTopBottomSheetLayoutExample: View {
+#if DEBUG
+struct FKTopBottomSheetLayoutExample: View {
     @State private var position: SheetPosition = .collapsed
 
     public var body: some View {
@@ -134,8 +134,10 @@ public struct FKTopBottomSheetLayoutExample: View {
         )
     }
 }
+#endif
 
 // MARK: - Preview
 #Preview {
     FKTopBottomSheetLayoutExample()
 }
+
