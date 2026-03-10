@@ -1,0 +1,22 @@
+{
+  "collapse-filter": false,
+  "search": "tag: architecture",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [],
+  "collapse-display": false,
+  "showArrow": false,
+  "textFadeMultiplier": -0.1,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.479947916666667,
+  "repelStrength": 10.4357638888889,
+  "linkStrength": 1,
+  "linkDistance": 214,
+  "scale": 0.4541088544732338,
+  "close": true
+}

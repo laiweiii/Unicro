@@ -8,44 +8,170 @@
 // MARK: - Swipe Policy
 import SwiftUI
 
-public struct SwipePolicy: Sendable {
-    public enum Style: Sendable {
-        case peek        // 信息层：滑一下露出更多信息/预览
-        case navigate    // 信息层：快速滑动切换/翻页
-        case actions     // 任务层：露出按钮 actions
-        case destructive // 任务层：直接 destructive（建议仍可撤销）
+
+
+public struct SwipeBehavior: Sendable {
+    public enum CommitLevel: Sendable {
+        case revealOnly
+        case commitOnThreshold
+        case commitOnFull
     }
 
-    public var style: Style
-    public var triggerThreshold: CGFloat     // 触发 action 的阈值
-    public var rubberBand: CGFloat           // 回弹系数
-    public var allowsFullSwipe: Bool         // 是否允许 full swipe 直接触发
-    public var hapticsOnTrigger: Bool
+    public let commitLevel: CommitLevel
+    public let triggerThreshold: CGFloat
+    public let rubberBand: CGFloat
+    public let hapticsOnTrigger: Bool
 
     public init(
-        style: Style,
+        commitLevel: CommitLevel = .revealOnly,
         triggerThreshold: CGFloat = 90,
         rubberBand: CGFloat = 0.25,
-        allowsFullSwipe: Bool = false,
         hapticsOnTrigger: Bool = true
     ) {
-        self.style = style
+        self.commitLevel = commitLevel
         self.triggerThreshold = triggerThreshold
         self.rubberBand = rubberBand
-        self.allowsFullSwipe = allowsFullSwipe
         self.hapticsOnTrigger = hapticsOnTrigger
     }
 }
 
-public enum DefaultSwipePolicies: IntentPolicyProviding {
-    public static var infoPolicy: SwipePolicy {
-        // Info：轻量，阈值更低，偏 peek/navigate，不建议 full swipe destructive
-        SwipePolicy(style: .peek, triggerThreshold: 60, rubberBand: 0.35, allowsFullSwipe: false)
-    }
+public struct SwipeCallbacks: Sendable {
+    public let onReveal: (() -> Void)?
+    public let onCommit: (() -> Void)?
 
-    public static var taskPolicy: SwipePolicy {
-        // Task：更明确，阈值更高，可 full swipe，actions/destructive
-        SwipePolicy(style: .actions, triggerThreshold: 90, rubberBand: 0.2, allowsFullSwipe: true)
+    public init(onReveal: (() -> Void)? = nil, onCommit: (() -> Void)? = nil) {
+        self.onReveal = onReveal
+        self.onCommit = onCommit
     }
 }
+
+public struct TaskSwipeConfig: Sendable {
+    public let behavior: SwipeBehavior
+    public let callbacks: SwipeCallbacks
+
+    public init(behavior: SwipeBehavior, callbacks: SwipeCallbacks) {
+        self.behavior = behavior
+        self.callbacks = callbacks
+    }
+}
+
+
+public struct TaskSwipeModifier: ViewModifier {
+    let enabled: Bool
+    let config: TaskSwipeConfig
+
+    let leftRevealWidth: CGFloat
+    let rightRevealWidth: CGFloat
+    let leftView: AnyView
+    let rightView: AnyView
+
+    @GestureState private var dragX: CGFloat = 0
+    @State private var offsetX: CGFloat = 0
+
+    public init(
+        enabled: Bool,
+        config: TaskSwipeConfig,
+        leftRevealWidth: CGFloat = 0,
+        rightRevealWidth: CGFloat = 0,
+        leftView: AnyView = AnyView(EmptyView()),
+        rightView: AnyView = AnyView(EmptyView())
+    ) {
+        self.enabled = enabled
+        self.config = config
+        self.leftRevealWidth = leftRevealWidth
+        self.rightRevealWidth = rightRevealWidth
+        self.leftView = leftView
+        self.rightView = rightView
+    }
+
+    public func body(content: Content) -> some View {
+        ZStack {
+            HStack(spacing: 0) {
+                leftView
+                    .frame(width: leftRevealWidth, alignment: .leading)
+                Spacer(minLength: 0)
+                rightView
+                    .frame(width: rightRevealWidth, alignment: .trailing)
+            }
+
+            content
+                .contentShape(Rectangle())
+                .offset(x: enabled ? (offsetX + dragX) : 0)
+                .gesture(enabled ? dragGesture() : nil)
+                .animation(.snappy(duration: 0.22), value: offsetX)
+        }
+        .clipped()
+    }
+
+    private func dragGesture() -> some Gesture {
+        DragGesture(minimumDistance: 8, coordinateSpace: .local)
+            .updating($dragX) { value, state, _ in
+                state = applyRubberBand(value.translation.width, factor: config.behavior.rubberBand)
+            }
+            .onEnded { value in
+                handleEnd(x: value.translation.width)
+            }
+    }
+
+    private func applyRubberBand(_ x: CGFloat, factor: CGFloat) -> CGFloat {
+        let sign: CGFloat = x >= 0 ? 1 : -1
+        let absX = abs(x)
+        return sign * (absX / (1 + absX * factor / 300))
+    }
+
+    private func revealOffset(for x: CGFloat) -> CGFloat {
+        if x >= 0 { return leftRevealWidth }
+        else { return -rightRevealWidth }
+    }
+
+    private func handleEnd(x: CGFloat) {
+        let absX = abs(x)
+
+        switch config.behavior.commitLevel {
+        case .revealOnly:
+            if absX >= config.behavior.triggerThreshold {
+                config.callbacks.onReveal?()
+                hapticIfNeeded()
+                offsetX = revealOffset(for: x)   // ✅ 停住
+            } else {
+                offsetX = 0
+            }
+
+        case .commitOnThreshold:
+            if absX >= config.behavior.triggerThreshold {
+                config.callbacks.onCommit?()
+                hapticIfNeeded()
+            }
+            offsetX = 0
+
+        case .commitOnFull:
+            let fullThreshold = config.behavior.triggerThreshold * 1.8
+            let revealWidth = x < 0 ? rightRevealWidth : leftRevealWidth
+            let revealTrigger = min(config.behavior.triggerThreshold, revealWidth)
+
+            if absX >= fullThreshold {
+                config.callbacks.onCommit?()
+                hapticIfNeeded()
+                offsetX = 0
+            } else if absX >= revealTrigger {
+                config.callbacks.onReveal?()
+                hapticIfNeeded()
+                offsetX = revealOffset(for: x)
+            } else {
+                offsetX = 0
+            }
+
+        }
+    }
+
+    private func hapticIfNeeded() {
+        guard config.behavior.hapticsOnTrigger else { return }
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+    }
+}
+
+
+
 

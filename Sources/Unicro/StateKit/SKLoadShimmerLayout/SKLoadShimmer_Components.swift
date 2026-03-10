@@ -9,8 +9,6 @@ import SwiftUI
 import Unicro
 
 
-import SwiftUI
-
 /// Configuration for shimmer loading effect
 public struct SKLoadShimmerConfiguration {
     public var baseColor: Color
@@ -109,6 +107,7 @@ public extension View {
     }
 }
 
+#if DEBUG
 // Example usage
 struct ShimmerExample: View {
     @State private var isLoading = true
@@ -417,4 +416,5 @@ struct GmailLoadingExample: View {
 #Preview {
     GmailLoadingExample()
 }
+#endif
 

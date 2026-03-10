@@ -1,5 +1,5 @@
 //
-//  FKExapndFull_Layout.swift
+//  FKExpandFull_Layout.swift
 //  MicroUXLibrary
 //
 //  Created by Lai Wei on 2025-04-07.
@@ -85,6 +85,7 @@ public struct ExpandLayoutConfiguration {
     }
 }
 
+// Note: Public type name is FKExpandLayout (docs updated accordingly).
 public struct FKExpandLayout<ButtonContent: View, CloseContent: View, ExpandedContent: View>: View {
     @Binding var isExpanded: Bool
 
@@ -154,6 +155,7 @@ public struct FKExpandLayout<ButtonContent: View, CloseContent: View, ExpandedCo
     }
 }
 
+#if DEBUG
 // Example usage
 struct FKExpandLayoutExample: View {
     @State private var isExpanded = false
@@ -214,3 +216,5 @@ struct FKExpandLayoutExample: View {
 #Preview {
     FKExpandLayoutExample()
 }
+#endif
+
