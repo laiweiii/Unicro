@@ -9,9 +9,9 @@ import SwiftUI
 
 public struct InteractionBinder {
     let base: AnyView
-    let intent: IKUXIntent
+    let intent: IKIntent
 
-    init<Base: View>(base: Base, intent: IKUXIntent) {
+    init<Base: View>(base: Base, intent: IKIntent) {
         self.base = AnyView(base)
         self.intent = intent
     }
@@ -19,7 +19,7 @@ public struct InteractionBinder {
 
 public extension View {
     func uxIntent(
-        _ intent: IKUXIntent,
+        _ intent: IKIntent,
         @ViewBuilder build: (InteractionBinder) -> some View
     ) -> some View {
         let base = self.environment(\.uxIntent, intent)

@@ -10,16 +10,16 @@ import Foundation
 public struct IKResolvedInteraction: Hashable, Sendable {
     public var intent: IKIntent
     public var interaction: IKInteraction
-    public var uxIntent: IKUXIntent
+    public var resolvedIntent: IKIntent
 
     public init(
         intent: IKIntent,
         interaction: IKInteraction,
-        uxIntent: IKUXIntent
+        resolvedIntent: IKIntent
     ) {
         self.intent = intent
         self.interaction = interaction
-        self.uxIntent = uxIntent
+        self.resolvedIntent = resolvedIntent
     }
 }
 
@@ -28,7 +28,7 @@ public struct IKResolver: Sendable {
 
     public func resolve(_ intent: IKIntent) -> IKResolvedInteraction {
         let interaction: IKInteraction
-        let uxIntent: IKUXIntent
+        let resolvedIntent: IKIntent
 
         switch (intent.verb, intent.target) {
         case (.open, .card):
@@ -37,7 +37,7 @@ public struct IKResolver: Sendable {
                 gesture: .tap,
                 motion: .fluidExpand
             )
-            uxIntent = .browse(.discover)
+            resolvedIntent = .browse(.discover)
 
         case (.preview, .card), (.open, .sheet):
             interaction = IKInteraction(
@@ -45,7 +45,7 @@ public struct IKResolver: Sendable {
                 gesture: .tap,
                 motion: .fluidSheet
             )
-            uxIntent = .browse(.read)
+            resolvedIntent = .browse(.read)
 
         case (.reorder, .grid), (.reorder, .canvas):
             interaction = IKInteraction(
@@ -53,7 +53,7 @@ public struct IKResolver: Sendable {
                 gesture: .drag,
                 motion: .draggableGrid
             )
-            uxIntent = .selection(.reorder)
+            resolvedIntent = .selection(.reorder)
 
         case (.manage, .item):
             interaction = IKInteraction(
@@ -61,7 +61,7 @@ public struct IKResolver: Sendable {
                 gesture: .swipe,
                 feedback: intent.context.isAsync ? .asyncState : nil
             )
-            uxIntent = .task(.manage)
+            resolvedIntent = .task(.manage)
 
         case (.inspect, .media):
             interaction = IKInteraction(
@@ -69,14 +69,14 @@ public struct IKResolver: Sendable {
                 gesture: .pinch,
                 motion: .spatialDrag
             )
-            uxIntent = .browse(.inspect)
+            resolvedIntent = .browse(.inspect)
 
         case (.select, _):
             interaction = IKInteraction(
                 pattern: .preview,
                 gesture: .tap
             )
-            uxIntent = .selection(.pick)
+            resolvedIntent = .selection(.pick)
 
         default:
             interaction = IKInteraction(
@@ -84,13 +84,13 @@ public struct IKResolver: Sendable {
                 gesture: .tap,
                 feedback: intent.context.isAsync ? .loading : nil
             )
-            uxIntent = .browse(.read)
+            resolvedIntent = .browse(.read)
         }
 
         return IKResolvedInteraction(
             intent: intent,
             interaction: interaction,
-            uxIntent: uxIntent
+            resolvedIntent: resolvedIntent
         )
     }
 }

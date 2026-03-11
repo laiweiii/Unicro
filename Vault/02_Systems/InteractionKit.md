@@ -20,6 +20,8 @@ Core files:
 - `Sources/Unicro/InteractionKit/IKInteraction.swift`
 - `Sources/Unicro/InteractionKit/IKInteractionBinder.swift`
 
+`IKUXIntent.swift` is kept only as a compatibility shim. `IKIntent` is the single source of truth.
+
 Pipeline position:
 
 [[Intent_Model]]

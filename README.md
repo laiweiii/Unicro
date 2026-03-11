@@ -17,6 +17,8 @@ Defines product intent in a stable form:
 - `target`
 - `context`
 
+`IKUXIntent.swift` now only exists as a compatibility shim. The actual model is `IKIntent`.
+
 Example:
 
 ```swift
