@@ -45,15 +45,7 @@ public struct SwipeSpec {
     public mutating func onCommit(_ f: @escaping () -> Void) { onCommit = f }
 }
 
-public struct InteractionBinder {
-    let base: AnyView
-    let intent: IKUXIntent
-
-    init<Base: View>(base: Base, intent: IKUXIntent) {
-        self.base = AnyView(base)
-        self.intent = intent
-    }
-
+public extension InteractionBinder {
     public func swipe(build: (inout SwipeSpec) -> Void) -> some View {
         var spec = SwipeSpec()
         build(&spec)
@@ -78,17 +70,6 @@ public struct InteractionBinder {
         )
     }
 }
-
-public extension View {
-    func uxIntent(
-        _ intent: IKUXIntent,
-        @ViewBuilder build: (InteractionBinder) -> some View
-    ) -> some View {
-        let base = self.environment(\.uxIntent, intent)
-        return build(InteractionBinder(base: base, intent: intent))
-    }
-}
-
 
 #if DEBUG
 
@@ -268,4 +249,3 @@ private struct CircleIconButton: View {
 }
 
 #endif
-

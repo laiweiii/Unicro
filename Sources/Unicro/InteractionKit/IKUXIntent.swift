@@ -1,5 +1,5 @@
 //
-//  IKConfiguration.swift
+//  IKUXIntent.swift
 //  Unicro
 //
 //  Created by Lai Wei on 2026-01-23.
