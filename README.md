@@ -9,15 +9,12 @@ Unicro is a layered SwiftUI interaction library organized around a single execut
 ### Layer 1. Intent DSL
 
 `InteractionKit/IKIntent.swift`
-`InteractionKit/IKUXIntent.swift`
 
 Defines product intent in a stable form:
 
 - `verb`
 - `target`
 - `context`
-
-`IKUXIntent.swift` now only exists as a compatibility shim. The actual model is `IKIntent`.
 
 Example:
 
@@ -85,7 +82,6 @@ Feedback and async state live here:
 Sources/Unicro
 ├── InteractionKit
 │   ├── IKIntent.swift
-│   ├── IKUXIntent.swift
 │   ├── IKInteraction.swift
 │   ├── IKInteractionBinder.swift
 │   └── IKResolver.swift

@@ -128,7 +128,7 @@ struct IKGesturePreviewGallery: View {
         case .tap:
             return AnyView(
                 card
-                    .uxIntent(.browse(.read)) { i in
+                    .intent(.browse(.read)) { i in
                         i.tap { s in
                             s.behaviour(.single, haptics: true)
                             s.onTrigger {
@@ -138,7 +138,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 6, rubberBand: 0.2, endState: .reset)
                         }
@@ -148,7 +148,7 @@ struct IKGesturePreviewGallery: View {
         case .longPress:
             return AnyView(
                 card
-                    .uxIntent(.task(.manage)) { i in
+                    .intent(.task(.manage)) { i in
                         i.longPress { s in
                             s.behaviour(minimumDuration: 0.45, maximumDistance: 18, haptics: true)
                             s.onTrigger {
@@ -157,7 +157,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 6, rubberBand: 0.2, endState: .reset)
                         }
@@ -167,7 +167,7 @@ struct IKGesturePreviewGallery: View {
         case .drag:
             return AnyView(
                 card
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 8, rubberBand: 0.22, endState: .reset)
                             s.onChange { point in
@@ -183,7 +183,7 @@ struct IKGesturePreviewGallery: View {
         case .pinch:
             return AnyView(
                 card
-                    .uxIntent(.browse(.discover)) { i in
+                    .intent(.browse(.discover)) { i in
                         i.pinch { s in
                             s.behaviour(minScale: 0.8, maxScale: 2.2, endState: .keep)
                             s.onChange { scale in
@@ -191,7 +191,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 6, rubberBand: 0.2, endState: .reset)
                         }
@@ -201,7 +201,7 @@ struct IKGesturePreviewGallery: View {
         case .rotate:
             return AnyView(
                 card
-                    .uxIntent(.browse(.inspect)) { i in
+                    .intent(.browse(.inspect)) { i in
                         i.rotate { s in
                             s.behaviour(endState: .keep)
                             s.onChange { angle in
@@ -209,7 +209,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 6, rubberBand: 0.2, endState: .reset)
                         }
@@ -219,7 +219,7 @@ struct IKGesturePreviewGallery: View {
         case .combined:
             return AnyView(
                 card
-                    .uxIntent(.browse(.inspect)) { i in
+                    .intent(.browse(.inspect)) { i in
                         i.rotate { rotate in
                             rotate.behaviour(endState: .keep)
                             rotate.onChange { angle in
@@ -227,7 +227,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.browse(.inspect)) { i in
+                    .intent(.browse(.inspect)) { i in
                         i.pinch { pinch in
                             pinch.behaviour(minScale: 0.8, maxScale: 2.3, endState: .keep)
                             pinch.onChange { scale in
@@ -235,7 +235,7 @@ struct IKGesturePreviewGallery: View {
                             }
                         }
                     }
-                    .uxIntent(.selection(.reorder)) { i in
+                    .intent(.selection(.reorder)) { i in
                         i.drag { s in
                             s.behaviour(.horizontal, minimumDistance: 6, rubberBand: 0.2, endState: .reset)
                         }

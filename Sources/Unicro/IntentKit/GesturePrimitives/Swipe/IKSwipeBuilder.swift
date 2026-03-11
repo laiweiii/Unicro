@@ -179,7 +179,7 @@ struct DemoScreen: View {
                         isStarred: false,
                         avatarColor: .blue
                     )
-                    .uxIntent(.task(.manage)) { i in
+                    .intent(.task(.manage)) { i in
                         i.swipe{ s in
                             s.behaviour(.commitOnFull, threshold: 100, rubberBand: 0.2)
                             s.reveal(edge: .trailing, width: 160) {
@@ -202,7 +202,7 @@ struct DemoScreen: View {
                         isStarred: true,
                         avatarColor: .purple
                     )
-                    .uxIntent(.task(.manage)) { i in
+                    .intent(.task(.manage)) { i in
                         i.swipe{ s in
                             s.behaviour(.commitOnFull, threshold: 100, rubberBand: 0.2)
                             s.reveal(edge: .trailing, width: 160) {
