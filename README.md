@@ -1,35 +1,107 @@
-# 🧩 Unicro - Micro UX Library
+# Unicro
 
-<div align="center">
-  <img src="https://img.shields.io/badge/platform-iOS-blue" alt="Platform iOS | macOS">
-  <img src="https://img.shields.io/badge/Swift-15+-orange" alt="Swift 15+">
-<!--  <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="MIT License">-->
-</div>
+Unicro is a layered SwiftUI interaction library organized around a single execution pipeline:
 
-<p align="center">A lightweight, modular component library for crafting fluid, animated, and state-aware SwiftUI experiences with minimal effort.</p>
-<p align="center">
-  <img src="Assets/unicro_herovideo.gif" alt="Unicro Library Demo" width="600">
-</p>
+`Intent -> Resolver -> Interaction Pattern -> Gesture / Motion -> Layout / Animation -> Feedback -> UI`
 
-## ✨ Overview
+## Layer Map
 
-**Unicro** provides a growing collection of interaction patterns and visual states that help you create polished user experiences without complex custom implementations. Built entirely with SwiftUI, it's designed to be easy to integrate and customize for any project.
+### Layer 1. Intent DSL
 
-The library is structured into two internal toolkits:
+`InteractionKit/IKIntent.swift`
 
-- **FluidKit**: Gesture-driven layouts with smooth animations
-- **StateKit**: Loading patterns and transition states
+Defines product intent in a stable form:
 
-All components are accessible via a simple `import Unicro`.
+- `verb`
+- `target`
+- `context`
 
-## 📦 Installation
+Example:
 
-### Swift Package Manager
+```swift
+let intent = IKIntent(
+    verb: .open,
+    target: .card
+)
+```
 
-Add Unicro to your project by adding it as a dependency in your `Package.swift` file:
+### Layer 2. Interaction Pattern
+
+`InteractionKit/IKResolver.swift`
+`InteractionKit/IKInteraction.swift`
+
+This layer decides which interaction pattern fulfills an intent.
+
+Example:
+
+```swift
+let resolved = IKResolver().resolve(
+    IKIntent(verb: .open, target: .card)
+)
+```
+
+### Layer 3. Interaction Primitives
+
+`IntentKit`
+
+Gesture input primitives live here:
+
+- tap
+- long press
+- drag
+- swipe
+- pinch
+- rotate
+
+### Layer 4. Motion / Layout
+
+`FluidKit`
+`MoveKit`
+
+These modules own motion and spatial behavior:
+
+- expand layout
+- sheet layout
+- draggable grid
+- fluid transitions
+
+### Layer 5. Feedback
+
+`StateKit`
+
+Feedback and async state live here:
+
+- loading
+- shimmer
+- state transitions
+
+## Repo Structure
+
+```text
+Sources/Unicro
+├── InteractionKit
+│   ├── IKIntent.swift
+│   ├── IKInteraction.swift
+│   └── IKResolver.swift
+├── IntentKit
+├── MoveKit
+├── FluidKit
+├── StateKit
+└── Extensions
+```
+
+## Current Positioning
+
+- `IntentKit`: gesture input
+- `InteractionKit`: behavior orchestration
+- `MoveKit`: spatial motion
+- `FluidKit`: animation / layout
+- `StateKit`: feedback
+
+## Installation
 
 ```swift
 dependencies: [
     .package(url: "https://github.com/laiweiii/Unicro.git", from: "1.0.0")
 ]
-
+```

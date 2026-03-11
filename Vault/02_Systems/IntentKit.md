@@ -3,17 +3,20 @@ tags: architecture/system
 ---
 # IntentKit
 
-IntentKit is responsible for intent creation and dispatching.
+IntentKit is responsible for gesture input primitives.
 
 Responsibilities:
 
-- define [[Intent_Model]]
-- dispatch intent
-- route intent to resolver
+- tap
+- long press
+- drag
+- swipe
+- pinch
+- rotate
 
-IntentKit is the entry point of the system.
+IntentKit is not the orchestration layer anymore. That role now lives in [[InteractionKit]].
 
 Related modules:
 
-[[SkillKit]]
+[[InteractionKit]]
 [[Execution_Pipeline]]
