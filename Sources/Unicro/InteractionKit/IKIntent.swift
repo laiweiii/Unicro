@@ -8,38 +8,56 @@
 import Foundation
 
 public struct IKIntent: Hashable, Sendable {
-    public var verb: Verb
-    public var target: Target
+    public var goal: Goal
+    public var domain: Domain
+    public var entity: Entity
+    public var stage: Stage
     public var context: Context
 
     public init(
-        verb: Verb,
-        target: Target,
+        goal: Goal,
+        domain: Domain = .traffic,
+        entity: Entity,
+        stage: Stage,
         context: Context = .init()
     ) {
-        self.verb = verb
-        self.target = target
+        self.goal = goal
+        self.domain = domain
+        self.entity = entity
+        self.stage = stage
         self.context = context
     }
 }
 
 public extension IKIntent {
-    enum ProductGoal: Hashable, Sendable {
-        case explore
-        case compare
-        case select
+    enum Goal: Hashable, Sendable {
         case inspect
         case manage
+        case compare
+        case select
         case confirm
         case custom(String)
     }
 
     enum Domain: Hashable, Sendable {
-        case general
-        case travelBooking
-        case commerce
-        case media
-        case productivity
+        case traffic
+        case custom(String)
+    }
+
+    enum Entity: Hashable, Sendable {
+        case incident
+        case route
+        case trip
+        case pin
+        case custom(String)
+    }
+
+    enum Stage: Hashable, Sendable {
+        case awareness
+        case evaluation
+        case decision
+        case activeNavigation
+        case confirmation
         case custom(String)
     }
 
@@ -51,126 +69,72 @@ public extension IKIntent {
 
     enum Browse: Hashable, Sendable {
         case read
-        case discover
         case inspect
     }
 
     enum Task: Hashable, Sendable {
-        case triage
         case manage
         case progress
     }
 
     enum Selection: Hashable, Sendable {
         case pick
-        case edit
-        case reorder
-    }
-
-    enum Verb: Hashable, Sendable {
-        case open
-        case preview
-        case inspect
-        case select
-        case reorder
-        case manage
-        case custom(String)
-    }
-
-    enum Target: Hashable, Sendable {
-        case card
-        case sheet
-        case grid
-        case item
-        case media
-        case canvas
-        case custom(String)
     }
 
     struct Context: Hashable, Sendable {
         public var source: String?
-        public var prefersPreview: Bool
         public var isAsync: Bool
+        public var urgency: Int
         public var capability: Capability?
-        public var goal: ProductGoal?
-        public var domain: Domain
 
         public init(
             source: String? = nil,
-            prefersPreview: Bool = false,
             isAsync: Bool = false,
-            capability: Capability? = nil,
-            goal: ProductGoal? = nil,
-            domain: Domain = .general
+            urgency: Int = 0,
+            capability: Capability? = nil
         ) {
             self.source = source
-            self.prefersPreview = prefersPreview
             self.isAsync = isAsync
+            self.urgency = urgency
             self.capability = capability
-            self.goal = goal
-            self.domain = domain
         }
     }
 }
 
 public extension IKIntent {
-    static func browse(_ mode: Browse = .read) -> Self {
-        switch mode {
-        case .read:
-            return .init(
-                verb: .preview,
-                target: .card,
-                context: .init(capability: .browse(mode), goal: .explore)
-            )
-        case .discover:
-            return .init(
-                verb: .open,
-                target: .card,
-                context: .init(capability: .browse(mode), goal: .explore)
-            )
-        case .inspect:
-            return .init(
-                verb: .inspect,
-                target: .media,
-                context: .init(capability: .browse(mode), goal: .inspect, domain: .media)
-            )
-        }
-    }
-
-    static func task(_ mode: Task = .manage) -> Self {
+    static func inspectIncident() -> Self {
         .init(
-            verb: .manage,
-            target: .item,
-            context: .init(capability: .task(mode), goal: .manage)
+            goal: .inspect,
+            entity: .incident,
+            stage: .evaluation,
+            context: .init(capability: .browse(.read))
         )
     }
 
-    static func selection(_ mode: Selection = .pick) -> Self {
-        switch mode {
-        case .pick, .edit:
-            return .init(
-                verb: .select,
-                target: .item,
-                context: .init(capability: .selection(mode), goal: .select)
-            )
-        case .reorder:
-            return .init(
-                verb: .reorder,
-                target: .grid,
-                context: .init(capability: .selection(mode), goal: .manage)
-            )
-        }
+    static func inspectPin() -> Self {
+        .init(
+            goal: .inspect,
+            entity: .pin,
+            stage: .awareness,
+            context: .init(capability: .browse(.read))
+        )
     }
 
-    static func bookFlight() -> Self {
+    static func rerouteTrip(isAsync: Bool = true) -> Self {
         .init(
-            verb: .select,
-            target: .item,
-            context: .init(
-                capability: .selection(.pick),
-                goal: .compare,
-                domain: .travelBooking
-            )
+            goal: .manage,
+            entity: .route,
+            stage: .activeNavigation,
+            context: .init(isAsync: isAsync, capability: .task(.manage))
+        )
+    }
+
+    static func compareRoutes(isAsync: Bool = true) -> Self {
+        .init(
+            goal: .compare,
+            entity: .route,
+            stage: .decision,
+            context: .init(isAsync: isAsync, capability: .selection(.pick))
         )
     }
 
@@ -179,20 +143,14 @@ public extension IKIntent {
             return capability
         }
 
-        switch (verb, target) {
-        case (.manage, _):
+        switch goal {
+        case .inspect:
+            return .browse(stage == .awareness ? .read : .inspect)
+        case .manage, .confirm:
             return .task(.manage)
-        case (.reorder, _):
-            return .selection(.reorder)
-        case (.select, _):
+        case .compare, .select:
             return .selection(.pick)
-        case (.inspect, _):
-            return .browse(.inspect)
-        case (.open, _):
-            return .browse(.discover)
-        case (.preview, _):
-            return .browse(.read)
-        default:
+        case .custom:
             return .browse(.read)
         }
     }
@@ -225,12 +183,11 @@ public extension IKIntent {
     }
 
     var allowsPinch: Bool {
-        if case .browse = capability { return true }
+        if case .browse(.inspect) = capability { return true }
         return false
     }
 
     var allowsRotate: Bool {
-        if case .browse(.inspect) = capability { return true }
-        return false
+        false
     }
 }

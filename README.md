@@ -1,6 +1,6 @@
 # Unicro
 
-Unicro is a layered SwiftUI interaction library organized around a single execution pipeline:
+Unicro is a layered SwiftUI interaction library currently focused on traffic UX:
 
 `Intent -> Resolver -> Interaction Pattern -> Gesture / Motion -> Layout / Animation -> Feedback -> UI`
 
@@ -12,16 +12,20 @@ Unicro is a layered SwiftUI interaction library organized around a single execut
 
 Defines product intent in a stable form:
 
-- `verb`
-- `target`
+- `goal`
+- `domain`
+- `entity`
+- `stage`
 - `context`
 
 Example:
 
 ```swift
 let intent = IKIntent(
-    verb: .open,
-    target: .card
+    goal: .inspect,
+    domain: .traffic,
+    entity: .incident,
+    stage: .evaluation
 )
 ```
 
@@ -30,6 +34,7 @@ let intent = IKIntent(
 `InteractionKit/IKResolver.swift`
 `InteractionKit/IKInteraction.swift`
 `InteractionKit/IKInteractionBinder.swift`
+`InteractionKit/IKPatternCatalog.swift`
 
 This layer decides which interaction pattern fulfills an intent.
 
@@ -37,7 +42,12 @@ Example:
 
 ```swift
 let resolved = IKResolver().resolve(
-    IKIntent(verb: .open, target: .card)
+    IKIntent(
+        goal: .manage,
+        domain: .traffic,
+        entity: .route,
+        stage: .activeNavigation
+    )
 )
 ```
 
@@ -59,11 +69,10 @@ Gesture input primitives live here:
 `FluidKit`
 `MoveKit`
 
-These modules own motion and spatial behavior:
+These modules own motion and spatial behavior used by traffic patterns:
 
 - expand layout
 - sheet layout
-- draggable grid
 - fluid transitions
 
 ### Layer 5. Feedback
@@ -84,6 +93,8 @@ Sources/Unicro
 │   ├── IKIntent.swift
 │   ├── IKInteraction.swift
 │   ├── IKInteractionBinder.swift
+│   ├── IKPatternCatalog.swift
+│   ├── IKResolverProtocol.swift
 │   └── IKResolver.swift
 ├── IntentKit
 │   └── GesturePrimitives
@@ -96,7 +107,7 @@ Sources/Unicro
 ## Current Positioning
 
 - `IntentKit`: gesture input
-- `InteractionKit`: behavior orchestration
+- `InteractionKit`: traffic intent orchestration
 - `MoveKit`: spatial motion
 - `FluidKit`: animation / layout
 - `StateKit`: feedback

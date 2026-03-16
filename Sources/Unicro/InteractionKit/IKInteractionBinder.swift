@@ -18,7 +18,7 @@ public struct InteractionBinder {
 }
 
 private struct InteractionIntentKey: EnvironmentKey {
-    static let defaultValue: IKIntent = .browse(.read)
+    static let defaultValue: IKIntent = .inspectPin()
 }
 
 public extension EnvironmentValues {

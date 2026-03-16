@@ -8,18 +8,15 @@
 import Foundation
 
 public struct IKPatternRecipe: Hashable, Sendable {
-    public var pattern: IKInteraction.Pattern
     public var interaction: IKInteraction
     public var resolvedIntent: IKIntent
     public var component: Component
 
     public init(
-        pattern: IKInteraction.Pattern,
         interaction: IKInteraction,
         resolvedIntent: IKIntent,
         component: Component
     ) {
-        self.pattern = pattern
         self.interaction = interaction
         self.resolvedIntent = resolvedIntent
         self.component = component
@@ -28,114 +25,136 @@ public struct IKPatternRecipe: Hashable, Sendable {
 
 public extension IKPatternRecipe {
     enum Component: Hashable, Sendable {
-        case expandCard
-        case bottomSheet
-        case draggableGrid
-        case swipeRow
-        case mediaInspector
+        case incidentPreview
+        case incidentDetailSheet
+        case rerouteSheet
+        case routeCompareSheet
         case custom(String)
     }
 }
 
+public struct IKPatternRule: Hashable, Sendable {
+    public var goal: IKIntent.Goal?
+    public var entity: IKIntent.Entity?
+    public var stage: IKIntent.Stage?
+    public var recipe: IKPatternRecipe
+
+    public init(
+        goal: IKIntent.Goal? = nil,
+        entity: IKIntent.Entity? = nil,
+        stage: IKIntent.Stage? = nil,
+        recipe: IKPatternRecipe
+    ) {
+        self.goal = goal
+        self.entity = entity
+        self.stage = stage
+        self.recipe = recipe
+    }
+
+    func matches(_ intent: IKIntent) -> Bool {
+        if let goal, goal != intent.goal { return false }
+        if let entity, entity != intent.entity { return false }
+        if let stage, stage != intent.stage { return false }
+        return true
+    }
+}
+
 public struct IKPatternCatalog: Sendable {
-    public init() {}
+    public var rules: [IKPatternRule]
+    public var fallback: IKPatternRecipe
+
+    public init(
+        rules: [IKPatternRule] = Self.defaultRules,
+        fallback: IKPatternRecipe = Self.defaultFallback
+    ) {
+        self.rules = rules
+        self.fallback = fallback
+    }
 
     public func recipe(for intent: IKIntent) -> IKPatternRecipe {
-        switch (intent.context.domain, intent.context.goal, intent.verb, intent.target) {
-        case (.travelBooking, .compare?, _, _):
-            return IKPatternRecipe(
-                pattern: .preview,
+        for rule in rules where rule.matches(intent) {
+            var recipe = rule.recipe
+            if intent.context.isAsync && recipe.interaction.feedback == nil {
+                recipe.interaction.feedback = .asyncState
+            }
+            return recipe
+        }
+
+        var recipe = fallback
+        if intent.context.isAsync {
+            recipe.interaction.feedback = .loading
+        }
+        return recipe
+    }
+}
+
+public extension IKPatternCatalog {
+    static let defaultRules: [IKPatternRule] = [
+        IKPatternRule(
+            goal: .inspect,
+            entity: .pin,
+            stage: .awareness,
+            recipe: IKPatternRecipe(
                 interaction: IKInteraction(
                     pattern: .preview,
-                    gesture: .tap,
-                    motion: .fluidSheet
+                    gesture: .tap
                 ),
-                resolvedIntent: .selection(.pick),
-                component: .bottomSheet
+                resolvedIntent: .inspectPin(),
+                component: .incidentPreview
             )
-
-        case (_, .inspect?, _, .media), (.media, _, _, _):
-            return IKPatternRecipe(
-                pattern: .inspect,
-                interaction: IKInteraction(
-                    pattern: .inspect,
-                    gesture: .pinch,
-                    motion: .spatialDrag
-                ),
-                resolvedIntent: .browse(.inspect),
-                component: .mediaInspector
-            )
-
-        case (_, .manage?, _, .item), (_, _, .manage, .item):
-            return IKPatternRecipe(
-                pattern: .swipeAction,
-                interaction: IKInteraction(
-                    pattern: .swipeAction,
-                    gesture: .swipe,
-                    feedback: intent.context.isAsync ? .asyncState : nil
-                ),
-                resolvedIntent: .task(.manage),
-                component: .swipeRow
-            )
-
-        case (_, _, .open, .card):
-            return IKPatternRecipe(
-                pattern: .expand,
-                interaction: IKInteraction(
-                    pattern: .expand,
-                    gesture: .tap,
-                    motion: .fluidExpand
-                ),
-                resolvedIntent: .browse(.discover),
-                component: .expandCard
-            )
-
-        case (_, _, .preview, .card), (_, _, .open, .sheet):
-            return IKPatternRecipe(
-                pattern: .sheet,
+        ),
+        IKPatternRule(
+            goal: .inspect,
+            entity: .incident,
+            stage: .evaluation,
+            recipe: IKPatternRecipe(
                 interaction: IKInteraction(
                     pattern: .sheet,
                     gesture: .tap,
                     motion: .fluidSheet
                 ),
-                resolvedIntent: .browse(.read),
-                component: .bottomSheet
+                resolvedIntent: .inspectIncident(),
+                component: .incidentDetailSheet
             )
-
-        case (_, _, .reorder, .grid), (_, _, .reorder, .canvas):
-            return IKPatternRecipe(
-                pattern: .gridRearrange,
-                interaction: IKInteraction(
-                    pattern: .gridRearrange,
-                    gesture: .drag,
-                    motion: .draggableGrid
-                ),
-                resolvedIntent: .selection(.reorder),
-                component: .draggableGrid
-            )
-
-        case (_, _, .select, _):
-            return IKPatternRecipe(
-                pattern: .preview,
-                interaction: IKInteraction(
-                    pattern: .preview,
-                    gesture: .tap
-                ),
-                resolvedIntent: .selection(.pick),
-                component: .expandCard
-            )
-
-        default:
-            return IKPatternRecipe(
-                pattern: .preview,
+        ),
+        IKPatternRule(
+            goal: .manage,
+            entity: .route,
+            stage: .activeNavigation,
+            recipe: IKPatternRecipe(
                 interaction: IKInteraction(
                     pattern: .preview,
                     gesture: .tap,
-                    feedback: intent.context.isAsync ? .loading : nil
+                    motion: .fluidSheet,
+                    feedback: .asyncState
                 ),
-                resolvedIntent: .browse(.read),
-                component: .expandCard
+                resolvedIntent: .rerouteTrip(),
+                component: .rerouteSheet
             )
-        }
-    }
+        ),
+        IKPatternRule(
+            goal: .compare,
+            entity: .route,
+            stage: .decision,
+            recipe: IKPatternRecipe(
+                interaction: IKInteraction(
+                    pattern: .preview,
+                    gesture: .tap,
+                    motion: .fluidSheet,
+                    feedback: .asyncState
+                ),
+                resolvedIntent: .compareRoutes(),
+                component: .routeCompareSheet
+            )
+        )
+    ]
+
+    static let defaultFallback = IKPatternRecipe(
+        interaction: IKInteraction(
+            pattern: .preview,
+            gesture: .tap
+        ),
+        resolvedIntent: .inspectPin(),
+        component: .incidentPreview
+    )
 }

@@ -3,18 +3,20 @@ tags: architecture/system
 ---
 # InteractionKit
 
-InteractionKit is the orchestration layer between intent and concrete UI behavior.
+InteractionKit is the orchestration layer for traffic intent and concrete UI behavior.
 
 Responsibilities:
 
 - define the public intent DSL
-- resolve intent into an interaction pattern
+- resolve traffic intent into an interaction pattern
 - host capability mapping and binding helpers
 - bridge high-level intent to existing kit capabilities
 
 Core files:
 
 - `Sources/Unicro/InteractionKit/IKIntent.swift`
+- `Sources/Unicro/InteractionKit/IKPatternCatalog.swift`
+- `Sources/Unicro/InteractionKit/IKResolverProtocol.swift`
 - `Sources/Unicro/InteractionKit/IKResolver.swift`
 - `Sources/Unicro/InteractionKit/IKInteraction.swift`
 - `Sources/Unicro/InteractionKit/IKInteractionBinder.swift`
