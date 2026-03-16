@@ -24,6 +24,25 @@ public struct IKIntent: Hashable, Sendable {
 }
 
 public extension IKIntent {
+    enum ProductGoal: Hashable, Sendable {
+        case explore
+        case compare
+        case select
+        case inspect
+        case manage
+        case confirm
+        case custom(String)
+    }
+
+    enum Domain: Hashable, Sendable {
+        case general
+        case travelBooking
+        case commerce
+        case media
+        case productivity
+        case custom(String)
+    }
+
     enum Capability: Hashable, Sendable {
         case browse(Browse = .read)
         case task(Task = .manage)
@@ -73,17 +92,23 @@ public extension IKIntent {
         public var prefersPreview: Bool
         public var isAsync: Bool
         public var capability: Capability?
+        public var goal: ProductGoal?
+        public var domain: Domain
 
         public init(
             source: String? = nil,
             prefersPreview: Bool = false,
             isAsync: Bool = false,
-            capability: Capability? = nil
+            capability: Capability? = nil,
+            goal: ProductGoal? = nil,
+            domain: Domain = .general
         ) {
             self.source = source
             self.prefersPreview = prefersPreview
             self.isAsync = isAsync
             self.capability = capability
+            self.goal = goal
+            self.domain = domain
         }
     }
 }
@@ -95,19 +120,19 @@ public extension IKIntent {
             return .init(
                 verb: .preview,
                 target: .card,
-                context: .init(capability: .browse(mode))
+                context: .init(capability: .browse(mode), goal: .explore)
             )
         case .discover:
             return .init(
                 verb: .open,
                 target: .card,
-                context: .init(capability: .browse(mode))
+                context: .init(capability: .browse(mode), goal: .explore)
             )
         case .inspect:
             return .init(
                 verb: .inspect,
                 target: .media,
-                context: .init(capability: .browse(mode))
+                context: .init(capability: .browse(mode), goal: .inspect, domain: .media)
             )
         }
     }
@@ -116,7 +141,7 @@ public extension IKIntent {
         .init(
             verb: .manage,
             target: .item,
-            context: .init(capability: .task(mode))
+            context: .init(capability: .task(mode), goal: .manage)
         )
     }
 
@@ -126,15 +151,27 @@ public extension IKIntent {
             return .init(
                 verb: .select,
                 target: .item,
-                context: .init(capability: .selection(mode))
+                context: .init(capability: .selection(mode), goal: .select)
             )
         case .reorder:
             return .init(
                 verb: .reorder,
                 target: .grid,
-                context: .init(capability: .selection(mode))
+                context: .init(capability: .selection(mode), goal: .manage)
             )
         }
+    }
+
+    static func bookFlight() -> Self {
+        .init(
+            verb: .select,
+            target: .item,
+            context: .init(
+                capability: .selection(.pick),
+                goal: .compare,
+                domain: .travelBooking
+            )
+        )
     }
 
     var capability: Capability {
