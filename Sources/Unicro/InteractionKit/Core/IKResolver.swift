@@ -27,14 +27,14 @@ public struct IKResolvedInteraction: Hashable, Sendable {
 }
 
 public struct IKResolver: IKIntentResolving, Sendable {
-    public var catalog: IKPatternCatalog
+    public var mapping: TrafficIntentMapping
 
-    public init(catalog: IKPatternCatalog = .init()) {
-        self.catalog = catalog
+    public init(mapping: TrafficIntentMapping = .init()) {
+        self.mapping = mapping
     }
 
     public func resolve(_ intent: IKIntent) -> IKResolvedInteraction {
-        let recipe = catalog.recipe(for: intent)
+        let recipe = mapping.recipe(for: intent)
 
         return IKResolvedInteraction(
             intent: intent,

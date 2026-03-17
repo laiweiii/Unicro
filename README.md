@@ -8,7 +8,7 @@ Unicro is a layered SwiftUI interaction library currently focused on traffic UX:
 
 ### Layer 1. Intent DSL
 
-`InteractionKit/IKIntent.swift`
+`InteractionKit/Core/IKIntent.swift`
 
 Defines product intent in a stable form:
 
@@ -31,10 +31,10 @@ let intent = IKIntent(
 
 ### Layer 2. Interaction Pattern
 
-`InteractionKit/IKResolver.swift`
-`InteractionKit/IKInteraction.swift`
-`InteractionKit/IKInteractionBinder.swift`
-`InteractionKit/IKPatternCatalog.swift`
+`InteractionKit/Core/IKResolver.swift`
+`InteractionKit/Core/IKInteraction.swift`
+`InteractionKit/Core/IKInteractionBinder.swift`
+`InteractionKit/Traffic/TrafficIntentMapping.swift`
 
 This layer decides which interaction pattern fulfills an intent.
 
@@ -90,12 +90,14 @@ Feedback and async state live here:
 ```text
 Sources/Unicro
 ├── InteractionKit
-│   ├── IKIntent.swift
-│   ├── IKInteraction.swift
-│   ├── IKInteractionBinder.swift
-│   ├── IKPatternCatalog.swift
-│   ├── IKResolverProtocol.swift
-│   └── IKResolver.swift
+│   ├── Core
+│   │   ├── IKIntent.swift
+│   │   ├── IKInteraction.swift
+│   │   ├── IKInteractionBinder.swift
+│   │   ├── IKResolverProtocol.swift
+│   │   └── IKResolver.swift
+│   └── Traffic
+│       └── TrafficIntentMapping.swift
 ├── IntentKit
 │   └── GesturePrimitives
 ├── MoveKit

@@ -14,12 +14,12 @@ Responsibilities:
 
 Core files:
 
-- `Sources/Unicro/InteractionKit/IKIntent.swift`
-- `Sources/Unicro/InteractionKit/IKPatternCatalog.swift`
-- `Sources/Unicro/InteractionKit/IKResolverProtocol.swift`
-- `Sources/Unicro/InteractionKit/IKResolver.swift`
-- `Sources/Unicro/InteractionKit/IKInteraction.swift`
-- `Sources/Unicro/InteractionKit/IKInteractionBinder.swift`
+- `Sources/Unicro/InteractionKit/Core/IKIntent.swift`
+- `Sources/Unicro/InteractionKit/Traffic/TrafficIntentMapping.swift`
+- `Sources/Unicro/InteractionKit/Core/IKResolverProtocol.swift`
+- `Sources/Unicro/InteractionKit/Core/IKResolver.swift`
+- `Sources/Unicro/InteractionKit/Core/IKInteraction.swift`
+- `Sources/Unicro/InteractionKit/Core/IKInteractionBinder.swift`
 
 Pipeline position:
 

@@ -1,5 +1,5 @@
 //
-//  IKPatternCatalog.swift
+//  TrafficIntentMapping.swift
 //  Unicro
 //
 //  Created by Codex on 2026-03-10.
@@ -59,7 +59,7 @@ public struct IKPatternRule: Hashable, Sendable {
     }
 }
 
-public struct IKPatternCatalog: Sendable {
+public struct TrafficIntentMapping: Sendable {
     public var rules: [IKPatternRule]
     public var fallback: IKPatternRecipe
 
@@ -88,7 +88,7 @@ public struct IKPatternCatalog: Sendable {
     }
 }
 
-public extension IKPatternCatalog {
+public extension TrafficIntentMapping {
     static let defaultRules: [IKPatternRule] = [
         IKPatternRule(
             goal: .inspect,
