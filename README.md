@@ -34,7 +34,7 @@ let intent = IKIntent(
 `InteractionKit/Core/IKResolver.swift`
 `InteractionKit/Core/IKInteraction.swift`
 `InteractionKit/Core/IKInteractionBinder.swift`
-`InteractionKit/Traffic/TrafficIntentMapping.swift`
+`InteractionKit/Domain/Traffic/TrafficIntentMapping.swift`
 
 This layer decides which interaction pattern fulfills an intent.
 
@@ -96,8 +96,9 @@ Sources/Unicro
 │   │   ├── IKInteractionBinder.swift
 │   │   ├── IKResolverProtocol.swift
 │   │   └── IKResolver.swift
-│   └── Traffic
-│       └── TrafficIntentMapping.swift
+│   └── Domain
+│       └── Traffic
+│           └── TrafficIntentMapping.swift
 ├── IntentKit
 │   └── GesturePrimitives
 ├── MoveKit

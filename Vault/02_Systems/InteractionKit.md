@@ -15,7 +15,7 @@ Responsibilities:
 Core files:
 
 - `Sources/Unicro/InteractionKit/Core/IKIntent.swift`
-- `Sources/Unicro/InteractionKit/Traffic/TrafficIntentMapping.swift`
+- `Sources/Unicro/InteractionKit/Domain/Traffic/TrafficIntentMapping.swift`
 - `Sources/Unicro/InteractionKit/Core/IKResolverProtocol.swift`
 - `Sources/Unicro/InteractionKit/Core/IKResolver.swift`
 - `Sources/Unicro/InteractionKit/Core/IKInteraction.swift`
