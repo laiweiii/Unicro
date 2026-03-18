@@ -16,7 +16,7 @@ public struct IKIntent: Hashable, Sendable {
 
     public init(
         goal: Goal,
-        domain: Domain = .traffic,
+        domain: Domain,
         entity: Entity,
         stage: Stage,
         context: Context = .init()
@@ -30,6 +30,30 @@ public struct IKIntent: Hashable, Sendable {
 }
 
 public extension IKIntent {
+    struct Domain: Hashable, Sendable, RawRepresentable, ExpressibleByStringLiteral {
+        public var rawValue: String
+
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        public init(stringLiteral value: StringLiteralType) {
+            self.rawValue = value
+        }
+    }
+
+    struct Entity: Hashable, Sendable, RawRepresentable, ExpressibleByStringLiteral {
+        public var rawValue: String
+
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        public init(stringLiteral value: StringLiteralType) {
+            self.rawValue = value
+        }
+    }
+
     enum Goal: Hashable, Sendable {
         case inspect
         case manage
@@ -39,24 +63,11 @@ public extension IKIntent {
         case custom(String)
     }
 
-    enum Domain: Hashable, Sendable {
-        case traffic
-        case custom(String)
-    }
-
-    enum Entity: Hashable, Sendable {
-        case incident
-        case route
-        case trip
-        case pin
-        case custom(String)
-    }
-
     enum Stage: Hashable, Sendable {
-        case awareness
+        case discovery
         case evaluation
         case decision
-        case activeNavigation
+        case execution
         case confirmation
         case custom(String)
     }
@@ -86,58 +97,28 @@ public extension IKIntent {
         public var isAsync: Bool
         public var urgency: Int
         public var capability: Capability?
+        public var domainEntity: String?
+        public var domainState: String?
 
         public init(
             source: String? = nil,
             isAsync: Bool = false,
             urgency: Int = 0,
-            capability: Capability? = nil
+            capability: Capability? = nil,
+            domainEntity: String? = nil,
+            domainState: String? = nil
         ) {
             self.source = source
             self.isAsync = isAsync
             self.urgency = urgency
             self.capability = capability
+            self.domainEntity = domainEntity
+            self.domainState = domainState
         }
     }
 }
 
 public extension IKIntent {
-    static func inspectIncident() -> Self {
-        .init(
-            goal: .inspect,
-            entity: .incident,
-            stage: .evaluation,
-            context: .init(capability: .browse(.read))
-        )
-    }
-
-    static func inspectPin() -> Self {
-        .init(
-            goal: .inspect,
-            entity: .pin,
-            stage: .awareness,
-            context: .init(capability: .browse(.read))
-        )
-    }
-
-    static func rerouteTrip(isAsync: Bool = true) -> Self {
-        .init(
-            goal: .manage,
-            entity: .route,
-            stage: .activeNavigation,
-            context: .init(isAsync: isAsync, capability: .task(.manage))
-        )
-    }
-
-    static func compareRoutes(isAsync: Bool = true) -> Self {
-        .init(
-            goal: .compare,
-            entity: .route,
-            stage: .decision,
-            context: .init(isAsync: isAsync, capability: .selection(.pick))
-        )
-    }
-
     var capability: Capability {
         if let capability = context.capability {
             return capability
@@ -145,7 +126,7 @@ public extension IKIntent {
 
         switch goal {
         case .inspect:
-            return .browse(stage == .awareness ? .read : .inspect)
+            return .browse(stage == .discovery ? .read : .inspect)
         case .manage, .confirm:
             return .task(.manage)
         case .compare, .select:

@@ -179,7 +179,20 @@ struct DemoScreen: View {
                         isStarred: false,
                         avatarColor: .blue
                     )
-                    .intent(.rerouteTrip()) { i in
+                    .intent(
+                        IKIntent(
+                            goal: .manage,
+                            domain: TrafficVocabulary.domain,
+                            entity: TrafficVocabulary.Entity.journey,
+                            stage: .execution,
+                            context: .init(
+                                isAsync: true,
+                                capability: .task(.manage),
+                                domainEntity: TrafficVocabulary.DomainEntity.route,
+                                domainState: TrafficVocabulary.DomainState.activeNavigation
+                            )
+                        )
+                    ) { i in
                         i.swipe{ s in
                             s.behaviour(.commitOnFull, threshold: 100, rubberBand: 0.2)
                             s.reveal(edge: .trailing, width: 160) {
@@ -202,7 +215,20 @@ struct DemoScreen: View {
                         isStarred: true,
                         avatarColor: .purple
                     )
-                    .intent(.rerouteTrip()) { i in
+                    .intent(
+                        IKIntent(
+                            goal: .manage,
+                            domain: TrafficVocabulary.domain,
+                            entity: TrafficVocabulary.Entity.journey,
+                            stage: .execution,
+                            context: .init(
+                                isAsync: true,
+                                capability: .task(.manage),
+                                domainEntity: TrafficVocabulary.DomainEntity.route,
+                                domainState: TrafficVocabulary.DomainState.activeNavigation
+                            )
+                        )
+                    ) { i in
                         i.swipe{ s in
                             s.behaviour(.commitOnFull, threshold: 100, rubberBand: 0.2)
                             s.reveal(edge: .trailing, width: 160) {

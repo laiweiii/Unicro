@@ -11,36 +11,40 @@ public struct IKResolvedInteraction: Hashable, Sendable {
     public var intent: IKIntent
     public var interaction: IKInteraction
     public var resolvedIntent: IKIntent
-    public var component: IKPatternRecipe.Component
+    public var transformer: IKInteractionRecipe.Transformer
 
     public init(
         intent: IKIntent,
         interaction: IKInteraction,
         resolvedIntent: IKIntent,
-        component: IKPatternRecipe.Component
+        transformer: IKInteractionRecipe.Transformer
     ) {
         self.intent = intent
         self.interaction = interaction
         self.resolvedIntent = resolvedIntent
-        self.component = component
+        self.transformer = transformer
     }
 }
 
 public struct IKResolver: IKIntentResolving, Sendable {
-    public var mapping: TrafficIntentMapping
+    public var engine: IKRuleEngine
 
-    public init(mapping: TrafficIntentMapping = .init()) {
-        self.mapping = mapping
+    public init(engine: IKRuleEngine = .init()) {
+        self.engine = engine
     }
 
     public func resolve(_ intent: IKIntent) -> IKResolvedInteraction {
-        let recipe = mapping.recipe(for: intent)
+        let recipe = engine.resolve(
+            intent: intent,
+            rules: TrafficIntentMapping.rules,
+            fallback: TrafficIntentMapping.fallback
+        )
 
         return IKResolvedInteraction(
             intent: intent,
             interaction: recipe.interaction,
             resolvedIntent: recipe.resolvedIntent,
-            component: recipe.component
+            transformer: recipe.transformer
         )
     }
 }

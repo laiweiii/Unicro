@@ -2,7 +2,17 @@
 
 Unicro is a layered SwiftUI interaction library currently focused on traffic UX:
 
-`Intent -> Resolver -> Interaction Pattern -> Gesture / Motion -> Layout / Animation -> Feedback -> UI`
+`Intent -> Resolver -> Recipe -> Transformer -> Primitive / Motion / Feedback -> Existing View`
+
+## Positioning
+
+Unicro sits after static page structure and before final interaction code.
+
+- Product teams still define screen structure, content, and business flows.
+- Unicro turns interaction intent into a microinteraction recipe: pattern, transformer, motion, feedback, and capability.
+- The output is not a business component like an incident sheet or booking form. It is the interaction logic that tells an existing view how to open, reveal, expand, or focus.
+
+In practice, this means a developer can start from an existing SwiftUI page, describe what a part of the page should do, and use Unicro to get a consistent implementation direction for that microinteraction.
 
 ## Layer Map
 
@@ -23,9 +33,12 @@ Example:
 ```swift
 let intent = IKIntent(
     goal: .inspect,
-    domain: .traffic,
-    entity: .incident,
-    stage: .evaluation
+    domain: TrafficVocabulary.domain,
+    entity: TrafficVocabulary.Entity.event,
+    stage: .evaluation,
+    context: .init(
+        domainEntity: TrafficVocabulary.DomainEntity.incident
+    )
 )
 ```
 
@@ -34,9 +47,10 @@ let intent = IKIntent(
 `InteractionKit/Core/IKResolver.swift`
 `InteractionKit/Core/IKInteraction.swift`
 `InteractionKit/Core/IKInteractionBinder.swift`
+`InteractionKit/Core/IKRuleEngine.swift`
 `InteractionKit/Domain/Traffic/TrafficIntentMapping.swift`
 
-This layer decides which interaction pattern fulfills an intent.
+This layer decides which interaction pattern and transformer fulfill an intent.
 
 Example:
 
@@ -44,9 +58,13 @@ Example:
 let resolved = IKResolver().resolve(
     IKIntent(
         goal: .manage,
-        domain: .traffic,
-        entity: .route,
-        stage: .activeNavigation
+        domain: TrafficVocabulary.domain,
+        entity: TrafficVocabulary.Entity.journey,
+        stage: .execution,
+        context: .init(
+            domainEntity: TrafficVocabulary.DomainEntity.route,
+            domainState: TrafficVocabulary.DomainState.activeNavigation
+        )
     )
 )
 ```
@@ -94,10 +112,12 @@ Sources/Unicro
 │   │   ├── IKIntent.swift
 │   │   ├── IKInteraction.swift
 │   │   ├── IKInteractionBinder.swift
+│   │   ├── IKRuleEngine.swift
 │   │   ├── IKResolverProtocol.swift
 │   │   └── IKResolver.swift
 │   └── Domain
 │       └── Traffic
+│           ├── TrafficVocabulary.swift
 │           └── TrafficIntentMapping.swift
 ├── IntentKit
 │   └── GesturePrimitives
