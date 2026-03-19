@@ -45,7 +45,6 @@ public enum TrafficIntentMapping {
                 interaction: IKInteraction(
                     pattern: .preview,
                     gesture: .tap,
-                    motion: .fluidSheet,
                     feedback: .asyncState
                 ),
                 resolvedIntent: IKIntent(

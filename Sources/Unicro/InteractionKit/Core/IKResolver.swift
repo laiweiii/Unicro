@@ -24,6 +24,14 @@ public struct IKResolvedInteraction: Hashable, Sendable {
         self.resolvedIntent = resolvedIntent
         self.transformer = transformer
     }
+
+    public var recipe: IKInteractionRecipe {
+        IKInteractionRecipe(
+            interaction: interaction,
+            resolvedIntent: resolvedIntent,
+            transformer: transformer
+        )
+    }
 }
 
 public struct IKResolver: IKIntentResolving, Sendable {

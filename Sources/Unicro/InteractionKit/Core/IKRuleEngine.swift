@@ -32,6 +32,19 @@ public extension IKInteractionRecipe {
     }
 }
 
+public extension IKInteractionRecipe.Transformer {
+    var defaultMotion: IKInteraction.MotionPrimitive? {
+        switch self {
+        case .anchoredPopup:
+            return .fluidExpand
+        case .bottomReveal:
+            return .fluidSheet
+        case .pushTransform, .custom:
+            return nil
+        }
+    }
+}
+
 public struct IKInteractionRule: Hashable, Sendable {
     public var goal: IKIntent.Goal?
     public var entity: IKIntent.Entity?
@@ -76,6 +89,9 @@ public struct IKRuleEngine: Sendable {
     ) -> IKInteractionRecipe {
         for rule in rules where rule.matches(intent) {
             var recipe = rule.recipe
+            if recipe.interaction.motion == nil {
+                recipe.interaction.motion = recipe.transformer.defaultMotion
+            }
             if intent.context.isAsync && recipe.interaction.feedback == nil {
                 recipe.interaction.feedback = .asyncState
             }
@@ -83,6 +99,9 @@ public struct IKRuleEngine: Sendable {
         }
 
         var recipe = fallback
+        if recipe.interaction.motion == nil {
+            recipe.interaction.motion = recipe.transformer.defaultMotion
+        }
         if intent.context.isAsync {
             recipe.interaction.feedback = .loading
         }
