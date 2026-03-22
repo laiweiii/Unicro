@@ -11,14 +11,12 @@ public struct IKAnchoredPopupMotionConfiguration: Sendable {
     public var collapsedWidthRatio: CGFloat
     public var collapsedHeightRatio: CGFloat
     public var collapsedOpacity: CGFloat
-    public var collapsedYOffset: CGFloat
     public var animation: Animation
 
     public static let standard = IKAnchoredPopupMotionConfiguration(
         collapsedWidthRatio: 0.5,
         collapsedHeightRatio: 0.5,
         collapsedOpacity: 0,
-        collapsedYOffset: 140,
         animation: .spring(response: 0.4, dampingFraction: 0.8)
     )
 
@@ -26,13 +24,11 @@ public struct IKAnchoredPopupMotionConfiguration: Sendable {
         collapsedWidthRatio: CGFloat = 0.5,
         collapsedHeightRatio: CGFloat = 0.5,
         collapsedOpacity: CGFloat = 0,
-        collapsedYOffset: CGFloat = 140,
         animation: Animation = .spring(response: 0.4, dampingFraction: 0.8)
     ) {
         self.collapsedWidthRatio = collapsedWidthRatio
         self.collapsedHeightRatio = collapsedHeightRatio
         self.collapsedOpacity = collapsedOpacity
-        self.collapsedYOffset = collapsedYOffset
         self.animation = animation
     }
 }
@@ -104,31 +100,65 @@ public extension IKTransformerMotionPreset {
 
 public struct IKAnchoredPopupMotion<Content: View>: View {
     let isExpanded: Bool
+    let sourceUnitPoint: UnitPoint?
     let config: IKAnchoredPopupMotionConfiguration
     let content: Content
 
+    @State private var contentSize: CGSize = .zero
+
     public init(
         isExpanded: Bool,
+        sourceUnitPoint: UnitPoint? = nil,
         config: IKAnchoredPopupMotionConfiguration = .standard,
         @ViewBuilder content: () -> Content
     ) {
         self.isExpanded = isExpanded
+        self.sourceUnitPoint = sourceUnitPoint
         self.config = config
         self.content = content()
     }
 
     public var body: some View {
-        content
-            .opacity(isExpanded ? 1 : config.collapsedOpacity)
-            .scaleEffect(
-                x: isExpanded ? 1 : max(config.collapsedWidthRatio, 0.01),
-                y: isExpanded ? 1 : max(config.collapsedHeightRatio, 0.01),
-                anchor: .bottom
+        GeometryReader { proxy in
+            let containerSize = proxy.size
+            let measuredSize = CGSize(
+                width: max(contentSize.width, 1),
+                height: max(contentSize.height, 1)
             )
-            .offset(y: isExpanded ? 0 : config.collapsedYOffset)
-            .clipped()
-            .animation(config.animation, value: isExpanded)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            let expandedCenter = CGPoint(
+                x: containerSize.width / 2,
+                y: containerSize.height - measuredSize.height / 2
+            )
+            let collapsedCenter = CGPoint(
+                x: (sourceUnitPoint?.x ?? 0.5) * containerSize.width,
+                y: (sourceUnitPoint?.y ?? 1.0) * containerSize.height
+            )
+
+            content
+                .background(
+                    GeometryReader { contentProxy in
+                        Color.clear
+                            .preference(
+                                key: IKAnchoredPopupMeasuredSizeKey.self,
+                                value: contentProxy.size
+                            )
+                    }
+                )
+                .opacity(isExpanded ? 1 : config.collapsedOpacity)
+                .scaleEffect(
+                    x: isExpanded ? 1 : max(config.collapsedWidthRatio, 0.01),
+                    y: isExpanded ? 1 : max(config.collapsedHeightRatio, 0.01),
+                    anchor: .center
+                )
+                .offset(
+                    x: isExpanded ? 0 : collapsedCenter.x - expandedCenter.x,
+                    y: isExpanded ? 0 : collapsedCenter.y - expandedCenter.y
+                )
+                .clipped()
+                .animation(config.animation, value: isExpanded)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        }
+        .onPreferenceChange(IKAnchoredPopupMeasuredSizeKey.self) { contentSize = $0 }
     }
 }
 
@@ -221,6 +251,14 @@ private struct IKBottomRevealMeasuredHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private struct IKAnchoredPopupMeasuredSizeKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()
     }
 }
