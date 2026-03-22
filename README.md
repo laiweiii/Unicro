@@ -1,6 +1,6 @@
 # Unicro
 
-Unicro is a layered SwiftUI interaction library currently focused on traffic UX:
+Unicro is a SwiftUI microinteraction library focused on how existing pages move and behave consistently:
 
 `Intent -> Resolver -> Recipe -> Transformer -> Primitive / Motion / Feedback -> Existing View`
 
@@ -20,7 +20,7 @@ In practice, this means a developer can start from an existing SwiftUI page, des
 
 `InteractionKit/Core/IKIntent.swift`
 
-Defines product intent in a stable form:
+Defines interaction intent in a stable form:
 
 - `goal`
 - `domain`
@@ -28,17 +28,15 @@ Defines product intent in a stable form:
 - `stage`
 - `context`
 
+`domain` is now optional metadata. The motion and transformer pipeline does not depend on it.
+
 Example:
 
 ```swift
 let intent = IKIntent(
     goal: .inspect,
-    domain: TrafficVocabulary.domain,
-    entity: TrafficVocabulary.Entity.event,
-    stage: .evaluation,
-    context: .init(
-        domainEntity: TrafficVocabulary.DomainEntity.incident
-    )
+    entity: IKTransformerMapping.item,
+    stage: .discovery
 )
 ```
 
@@ -48,9 +46,9 @@ let intent = IKIntent(
 `InteractionKit/Core/IKInteraction.swift`
 `InteractionKit/Core/IKInteractionBinder.swift`
 `InteractionKit/Core/IKRuleEngine.swift`
-`InteractionKit/Domain/Traffic/TrafficIntentMapping.swift`
+`InteractionKit/Core/IKTransformerMapping.swift`
 
-This layer decides which interaction pattern and transformer fulfill an intent.
+This layer decides which transformer and interaction pattern fulfill an intent.
 
 Example:
 
@@ -58,12 +56,11 @@ Example:
 let resolved = IKResolver().resolve(
     IKIntent(
         goal: .manage,
-        domain: TrafficVocabulary.domain,
-        entity: TrafficVocabulary.Entity.journey,
+        entity: IKTransformerMapping.item,
         stage: .execution,
         context: .init(
-            domainEntity: TrafficVocabulary.DomainEntity.route,
-            domainState: TrafficVocabulary.DomainState.activeNavigation
+            isAsync: true,
+            capability: .task(.manage)
         )
     )
 )
@@ -87,7 +84,7 @@ Gesture input primitives live here:
 `FluidKit`
 `MoveKit`
 
-These modules own motion and spatial behavior used by traffic patterns:
+These modules own motion and spatial behavior used by interaction transformers:
 
 - expand layout
 - sheet layout
@@ -103,7 +100,7 @@ Feedback and async state live here:
 - shimmer
 - state transitions
 
-## Repo Structure
+## Core Structure
 
 ```text
 Sources/Unicro
@@ -112,13 +109,12 @@ Sources/Unicro
 │   │   ├── IKIntent.swift
 │   │   ├── IKInteraction.swift
 │   │   ├── IKInteractionBinder.swift
+│   │   ├── IKInteractionExecutor.swift
 │   │   ├── IKRuleEngine.swift
 │   │   ├── IKResolverProtocol.swift
-│   │   └── IKResolver.swift
-│   └── Domain
-│       └── Traffic
-│           ├── TrafficVocabulary.swift
-│           └── TrafficIntentMapping.swift
+│   │   ├── IKResolver.swift
+│   │   ├── IKTransformerMapping.swift
+│   │   └── IKTransformerMotion.swift
 ├── IntentKit
 │   └── GesturePrimitives
 ├── MoveKit
@@ -127,13 +123,28 @@ Sources/Unicro
 └── Extensions
 ```
 
+## Example Domains
+
+Domain-specific mappings can still live under `InteractionKit/Domain`, but they are examples rather than part of the core motion pipeline.
+
+Current example set:
+
+```text
+Sources/Unicro/InteractionKit/Domain
+└── Traffic
+    ├── TrafficVocabulary.swift
+    └── TrafficIntentMapping.swift
+```
+
 ## Current Positioning
 
 - `IntentKit`: gesture input
-- `InteractionKit`: traffic intent orchestration
+- `InteractionKit`: transformer orchestration
 - `MoveKit`: spatial motion
 - `FluidKit`: animation / layout
 - `StateKit`: feedback
+
+`Domain/Traffic` is an example mapping layer, not a required part of the main architecture.
 
 ## Installation
 

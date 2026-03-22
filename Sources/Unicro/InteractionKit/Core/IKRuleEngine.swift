@@ -49,23 +49,17 @@ public struct IKInteractionRule: Hashable, Sendable {
     public var goal: IKIntent.Goal?
     public var entity: IKIntent.Entity?
     public var stage: IKIntent.Stage?
-    public var domainEntity: String?
-    public var domainState: String?
     public var recipe: IKInteractionRecipe
 
     public init(
         goal: IKIntent.Goal? = nil,
         entity: IKIntent.Entity? = nil,
         stage: IKIntent.Stage? = nil,
-        domainEntity: String? = nil,
-        domainState: String? = nil,
         recipe: IKInteractionRecipe
     ) {
         self.goal = goal
         self.entity = entity
         self.stage = stage
-        self.domainEntity = domainEntity
-        self.domainState = domainState
         self.recipe = recipe
     }
 
@@ -73,8 +67,6 @@ public struct IKInteractionRule: Hashable, Sendable {
         if let goal, goal != intent.goal { return false }
         if let entity, entity != intent.entity { return false }
         if let stage, stage != intent.stage { return false }
-        if let domainEntity, domainEntity != intent.context.domainEntity { return false }
-        if let domainState, domainState != intent.context.domainState { return false }
         return true
     }
 }

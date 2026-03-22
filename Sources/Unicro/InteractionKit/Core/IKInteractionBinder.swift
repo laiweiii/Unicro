@@ -20,13 +20,11 @@ public struct InteractionBinder {
 private struct InteractionIntentKey: EnvironmentKey {
     static let defaultValue = IKIntent(
         goal: .inspect,
-        domain: TrafficVocabulary.domain,
-        entity: TrafficVocabulary.Entity.mapElement,
+        domain: "generic",
+        entity: IKTransformerMapping.item,
         stage: .discovery,
         context: .init(
-            capability: .browse(.read),
-            domainEntity: TrafficVocabulary.DomainEntity.pin,
-            domainState: TrafficVocabulary.DomainState.awareness
+            capability: .browse(.read)
         )
     )
 }

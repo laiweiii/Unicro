@@ -182,14 +182,12 @@ struct DemoScreen: View {
                     .intent(
                         IKIntent(
                             goal: .manage,
-                            domain: TrafficVocabulary.domain,
-                            entity: TrafficVocabulary.Entity.journey,
+                            domain: "generic",
+                            entity: IKTransformerMapping.item,
                             stage: .execution,
                             context: .init(
                                 isAsync: true,
-                                capability: .task(.manage),
-                                domainEntity: TrafficVocabulary.DomainEntity.route,
-                                domainState: TrafficVocabulary.DomainState.activeNavigation
+                                capability: .task(.manage)
                             )
                         )
                     ) { i in
@@ -218,14 +216,12 @@ struct DemoScreen: View {
                     .intent(
                         IKIntent(
                             goal: .manage,
-                            domain: TrafficVocabulary.domain,
-                            entity: TrafficVocabulary.Entity.journey,
+                            domain: "generic",
+                            entity: IKTransformerMapping.item,
                             stage: .execution,
                             context: .init(
                                 isAsync: true,
-                                capability: .task(.manage),
-                                domainEntity: TrafficVocabulary.DomainEntity.route,
-                                domainState: TrafficVocabulary.DomainState.activeNavigation
+                                capability: .task(.manage)
                             )
                         )
                     ) { i in

@@ -1,17 +1,19 @@
 //
-//  TrafficIntentMapping.swift
+//  IKTransformerMapping.swift
 //  Unicro
 //
-//  Created by Codex on 2026-03-10.
+//  Created by Codex on 2026-03-11.
 //
 
 import Foundation
 
-public enum TrafficIntentMapping {
+public enum IKTransformerMapping {
+    public static let item: IKIntent.Entity = "item"
+
     public static let rules: [IKInteractionRule] = [
         IKInteractionRule(
             goal: .inspect,
-            entity: TrafficVocabulary.Entity.mapElement,
+            entity: item,
             stage: .discovery,
             recipe: IKInteractionRecipe(
                 interaction: IKInteraction(
@@ -20,8 +22,8 @@ public enum TrafficIntentMapping {
                 ),
                 resolvedIntent: IKIntent(
                     goal: .inspect,
-                    domain: TrafficVocabulary.domain,
-                    entity: TrafficVocabulary.Entity.mapElement,
+                    domain: "generic",
+                    entity: item,
                     stage: .discovery,
                     context: .init(
                         capability: .browse(.read)
@@ -30,10 +32,9 @@ public enum TrafficIntentMapping {
                 transformer: .anchoredPopup
             )
         ),
-        
         IKInteractionRule(
             goal: .manage,
-            entity: TrafficVocabulary.Entity.journey,
+            entity: item,
             stage: .execution,
             recipe: IKInteractionRecipe(
                 interaction: IKInteraction(
@@ -43,8 +44,8 @@ public enum TrafficIntentMapping {
                 ),
                 resolvedIntent: IKIntent(
                     goal: .manage,
-                    domain: TrafficVocabulary.domain,
-                    entity: TrafficVocabulary.Entity.journey,
+                    domain: "generic",
+                    entity: item,
                     stage: .execution,
                     context: .init(
                         isAsync: true,
@@ -63,8 +64,8 @@ public enum TrafficIntentMapping {
         ),
         resolvedIntent: IKIntent(
             goal: .inspect,
-            domain: TrafficVocabulary.domain,
-            entity: TrafficVocabulary.Entity.mapElement,
+            domain: "generic",
+            entity: item,
             stage: .discovery,
             context: .init(
                 capability: .browse(.read)

@@ -44,8 +44,8 @@ public struct IKResolver: IKIntentResolving, Sendable {
     public func resolve(_ intent: IKIntent) -> IKResolvedInteraction {
         let recipe = engine.resolve(
             intent: intent,
-            rules: TrafficIntentMapping.rules,
-            fallback: TrafficIntentMapping.fallback
+            rules: IKTransformerMapping.rules,
+            fallback: IKTransformerMapping.fallback
         )
 
         return IKResolvedInteraction(

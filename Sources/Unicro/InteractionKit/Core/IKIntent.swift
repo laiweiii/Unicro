@@ -16,7 +16,7 @@ public struct IKIntent: Hashable, Sendable {
 
     public init(
         goal: Goal,
-        domain: Domain,
+        domain: Domain = "generic",
         entity: Entity,
         stage: Stage,
         context: Context = .init()
@@ -97,23 +97,17 @@ public extension IKIntent {
         public var isAsync: Bool
         public var urgency: Int
         public var capability: Capability?
-        public var domainEntity: String?
-        public var domainState: String?
 
         public init(
             source: String? = nil,
             isAsync: Bool = false,
             urgency: Int = 0,
-            capability: Capability? = nil,
-            domainEntity: String? = nil,
-            domainState: String? = nil
+            capability: Capability? = nil
         ) {
             self.source = source
             self.isAsync = isAsync
             self.urgency = urgency
             self.capability = capability
-            self.domainEntity = domainEntity
-            self.domainState = domainState
         }
     }
 }
