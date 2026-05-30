@@ -192,43 +192,53 @@ public struct IKBottomRevealMotion<Content: View>: View {
             let travelDistance = max(hiddenY - expandedY, 1)
             let settleThreshold = travelDistance * config.settleThresholdTravelRatio
 
-            VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                // Measure the presented content outside of the moving layer so
+                // the initial collapsed state still gets a stable height.
                 content
+                    .frame(width: geo.size.width)
+                    .fixedSize(horizontal: false, vertical: true)
                     .background(
                         GeometryReader { proxy in
                             Color.clear
                                 .preference(key: IKBottomRevealMeasuredHeightKey.self, value: proxy.size.height)
                         }
                     )
-                Spacer(minLength: 0)
+                    .hidden()
+                    .allowsHitTesting(false)
+
+                VStack(spacing: 0) {
+                    content
+                    Spacer(minLength: 0)
+                }
+                .frame(width: geo.size.width)
+                .offset(y: sheetY)
+                .gesture(
+                    DragGesture(minimumDistance: 10)
+                        .updating($dragOffset) { value, state, _ in
+                            state = value.translation.height
+                        }
+                        .onEnded { value in
+                            let velocity = value.predictedEndLocation.y - value.location.y
+                            let dragDistance = abs(value.translation.height)
+
+                            let finalPosition: SheetPosition
+                            if value.translation.height < 0 &&
+                                (velocity < config.upwardVelocityThreshold || dragDistance > settleThreshold) {
+                                finalPosition = .expanded
+                            } else if value.translation.height > 0 &&
+                                (velocity > config.downwardVelocityThreshold || dragDistance > settleThreshold) {
+                                finalPosition = .collapsed
+                            } else {
+                                finalPosition = position
+                            }
+
+                            withAnimation(config.animation) {
+                                position = finalPosition
+                            }
+                        }
+                )
             }
-            .frame(width: geo.size.width)
-            .offset(y: sheetY)
-            .gesture(
-                DragGesture(minimumDistance: 10)
-                    .updating($dragOffset) { value, state, _ in
-                        state = value.translation.height
-                    }
-                    .onEnded { value in
-                        let velocity = value.predictedEndLocation.y - value.location.y
-                        let dragDistance = abs(value.translation.height)
-
-                        let finalPosition: SheetPosition
-                        if value.translation.height < 0 &&
-                            (velocity < config.upwardVelocityThreshold || dragDistance > settleThreshold) {
-                            finalPosition = .expanded
-                        } else if value.translation.height > 0 &&
-                            (velocity > config.downwardVelocityThreshold || dragDistance > settleThreshold) {
-                            finalPosition = .collapsed
-                        } else {
-                            finalPosition = position
-                        }
-
-                        withAnimation(config.animation) {
-                            position = finalPosition
-                        }
-                    }
-            )
             .onPreferenceChange(IKBottomRevealMeasuredHeightKey.self) { contentHeight = $0 }
             .animation(nil, value: position)
         }
