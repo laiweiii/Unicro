@@ -31,4 +31,21 @@ public extension View {
             callbacks: callbacks
         )
     }
+
+    func unicro<Destination: View>(
+        _ payload: UnicroIntentPayload,
+        resolver: IKResolver = .init(),
+        sourceUnitPoint: UnitPoint? = nil,
+        behavior: IKPresentationBehavior? = nil,
+        @ViewBuilder destination: @escaping (_ dismiss: @escaping () -> Void) -> Destination
+    ) -> some View {
+        UnicroPresentedView(
+            source: self,
+            payload: payload,
+            resolver: resolver,
+            sourceUnitPoint: sourceUnitPoint,
+            behavior: behavior,
+            destination: destination
+        )
+    }
 }
