@@ -94,23 +94,17 @@ public extension IKIntent {
 
     struct Context: Hashable, Sendable {
         public var source: String?
-        public var domainEntity: String?
-        public var domainState: String?
         public var isAsync: Bool
         public var urgency: Int
         public var capability: Capability?
 
         public init(
             source: String? = nil,
-            domainEntity: String? = nil,
-            domainState: String? = nil,
             isAsync: Bool = false,
             urgency: Int = 0,
             capability: Capability? = nil
         ) {
             self.source = source
-            self.domainEntity = domainEntity
-            self.domainState = domainState
             self.isAsync = isAsync
             self.urgency = urgency
             self.capability = capability

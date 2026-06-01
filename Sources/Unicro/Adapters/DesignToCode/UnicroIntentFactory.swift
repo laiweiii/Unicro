@@ -16,8 +16,6 @@ public enum UnicroIntentFactory {
             stage: payload.stage,
             context: .init(
                 source: payload.source,
-                domainEntity: payload.domainEntity,
-                domainState: payload.domainState,
                 isAsync: payload.isAsync,
                 urgency: payload.urgency,
                 capability: payload.capability
