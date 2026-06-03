@@ -9,6 +9,7 @@ import Foundation
 
 public enum IKTransformerMapping {
     public static let item: IKIntent.Entity = "item"
+    public static let search: IKIntent.Entity = "search"
 
     public static let rules: [IKInteractionRule] = [
         IKInteractionRule(
@@ -53,6 +54,28 @@ public enum IKTransformerMapping {
                     )
                 ),
                 transformer: .bottomReveal
+            )
+        ),
+        IKInteractionRule(
+            goal: .inspect,
+            entity: search,
+            stage: .discovery,
+            recipe: IKInteractionRecipe(
+                interaction: IKInteraction(
+                    pattern: .inspect,
+                    gesture: .tap
+                ),
+                resolvedIntent: IKIntent(
+                    goal: .inspect,
+                    domain: "generic",
+                    entity: search,
+                    stage: .discovery,
+                    context: .init(
+                        source: "search_entry",
+                        capability: .browse(.inspect)
+                    )
+                ),
+                transformer: .pushTransform
             )
         ),
     ]
